@@ -147,11 +147,22 @@
 
         <div class="toggle-item">
           <div class="toggle-label-wrap">
-            <span class="color-dot" style="color: var(--terrestrial-color)"></span>
-            <span>4 Meridiani Celesti (Mobile)</span>
+            <span class="color-dot" style="color: var(--equinox-color)"></span>
+            <span>Coluro Equinoziale (Mobile)</span>
           </div>
           <label class="switch">
-            <input type="checkbox" id="toggle-meridians-outer" checked>
+            <input type="checkbox" id="toggle-equinox" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--solstice-color)"></span>
+            <span>Coluro Solstiziale (Mobile)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-solstice" checked>
             <span class="slider-switch"></span>
           </label>
         </div>
@@ -245,11 +256,11 @@
 
         <div class="info-card" onclick="toggleCard(this)">
           <div class="info-card-header">
-            <span>4 Meridiani Celesti</span>
-            <span class="badge" style="background: rgba(155, 93, 229, 0.15); color: var(--terrestrial-color)">Mobile</span>
+            <span>Coluri (Equinoziale e Solstiziale)</span>
+            <span class="badge" style="background: rgba(155, 93, 229, 0.15); color: var(--equinox-color)">Mobile</span>
           </div>
           <div class="info-card-desc">
-            Quattro cerchi perpendicolari all'equatore celeste, sfasati di 45° l'uno dall'altro. Rappresentano la griglia dei meridiani celesti (o coluri) che ruotano assieme all'asse del cielo.
+            I due meridiani principali della sfera celeste. Il <strong>Coluro Equinoziale</strong> (viola) passa per i poli celesti e per i punti equinoziali. Il <strong>Coluro Solstiziale</strong> (rosa/rosso) passa per i poli celesti e per i punti solstiziali, intersecando lo Zodiaco nei suoi punti di massima inclinazione.
           </div>
         </div>
       </section>

@@ -12,7 +12,7 @@ let starField;
 let horizonMesh, fixedMeridianMesh;
 let equatorMesh, tropicCancerMesh, tropicCapricornMesh;
 let arcticCircleMesh, antarcticCircleMesh;
-let outerMeridians = [];
+let equinoxColureMesh, solsticeColureMesh;
 let zodiacBandMesh;
 let sunMesh;
 let earthGlobeMesh, earthAxisMesh;
@@ -38,7 +38,9 @@ const COLORS = {
   earthWater: 0x071126,
   goldMetal: 0xd4af37,
   brass: 0xb5a642,
-  zodiac: 0xff9f1c
+  zodiac: 0xff9f1c,
+  equinox: 0x9b5de5,
+  solstice: 0xff477e
 };
 
 // Poligoni approssimati per il disegno procedurale della Terra
@@ -536,25 +538,33 @@ function buildMobileElements(group) {
   antarcticCircleMesh.position.y = -polarHeight;
   group.add(antarcticCircleMesh);
 
-  // 7. 4 Meridiani Celesti Mobili (Coluri)
-  // Anelli verticali di raggio 5.0 passanti per i poli celesti celesti mobili, sfasati di 45 gradi
-  const outerMeridianGeo = new THREE.TorusGeometry(5.0, 0.035, 16, 100);
-  const outerMeridiansMat = new THREE.MeshStandardMaterial({
-    color: COLORS.terrestrial,
-    emissive: COLORS.terrestrial,
+  // 7. Coluri (Meridiani Celesti Mobili principali)
+  // Anelli verticali di raggio 5.0 passanti per i poli celesti, perpendicolari tra loro.
+  const colureGeo = new THREE.TorusGeometry(5.0, 0.035, 16, 100);
+  
+  // A. Coluro Equinoziale (passa per i punti equinoziali, colore Viola)
+  const equinoxMat = new THREE.MeshStandardMaterial({
+    color: COLORS.equinox,
+    emissive: COLORS.equinox,
     emissiveIntensity: 0.45,
     roughness: 0.2,
     metalness: 0.8
   });
+  equinoxColureMesh = new THREE.Mesh(colureGeo, equinoxMat);
+  equinoxColureMesh.rotation.y = 0; // Giace nel piano XY locale
+  group.add(equinoxColureMesh);
 
-  const angles = [0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4]; // 0°, 45°, 90°, 135°
-  angles.forEach(angle => {
-    const meridian = new THREE.Mesh(outerMeridianGeo, outerMeridiansMat);
-    // Un toro standard giace in XY (passa per asse Y). Lo ruotiamo sull'asse Y per orientarlo.
-    meridian.rotation.y = angle;
-    group.add(meridian);
-    outerMeridians.push(meridian);
+  // B. Coluro Solstiziale (passa per i punti solstiziali, colore Rosa/Rosso)
+  const solsticeMat = new THREE.MeshStandardMaterial({
+    color: COLORS.solstice,
+    emissive: COLORS.solstice,
+    emissiveIntensity: 0.45,
+    roughness: 0.2,
+    metalness: 0.8
   });
+  solsticeColureMesh = new THREE.Mesh(colureGeo, solsticeMat);
+  solsticeColureMesh.rotation.y = Math.PI / 2; // Perpendicolare all'altro coluro (piano YZ locale)
+  group.add(solsticeColureMesh);
 
   // 8. Fascia Zodiacale (Eclittica) - Tilted band between the Tropics
   const zodiacTexture = generateZodiacTexture();
@@ -862,8 +872,9 @@ function setupEventHandlers() {
     antarcticCircleMesh.visible = e.target.checked;
   });
 
-  // 4 Meridiani Celesti
-  bindToggle('toggle-meridians-outer', outerMeridians);
+  // Coluro Equinoziale e Solstiziale
+  bindToggle('toggle-equinox', equinoxColureMesh);
+  bindToggle('toggle-solstice', solsticeColureMesh);
 
   // Globo Terrestre + Asse + Meridiani Terrestri
   const toggleEarth = document.getElementById('toggle-earth');

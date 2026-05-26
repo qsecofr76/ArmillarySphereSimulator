@@ -551,7 +551,7 @@ function buildMobileElements(group) {
     metalness: 0.8
   });
   equinoxColureMesh = new THREE.Mesh(colureGeo, equinoxMat);
-  equinoxColureMesh.rotation.y = 0; // Giace nel piano XY locale
+  equinoxColureMesh.rotation.y = Math.PI / 2; // Giace nel piano YZ locale (contiene gli equinozi a x=0)
   group.add(equinoxColureMesh);
 
   // B. Coluro Solstiziale (passa per i punti solstiziali, colore Rosa/Rosso)
@@ -563,7 +563,7 @@ function buildMobileElements(group) {
     metalness: 0.8
   });
   solsticeColureMesh = new THREE.Mesh(colureGeo, solsticeMat);
-  solsticeColureMesh.rotation.y = Math.PI / 2; // Perpendicolare all'altro coluro (piano YZ locale)
+  solsticeColureMesh.rotation.y = 0; // Giace nel piano XY locale (contiene i solstizi a z=0)
   group.add(solsticeColureMesh);
 
   // 8. Fascia Zodiacale (Eclittica) - Tilted band between the Tropics

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulatore 3D Sfera Armillare</title>
+  <meta name="description" content="Un simulatore 3D interattivo di una Sfera Armillare astronomica. Regola la latitudine, esplora gli anelli celesti e comprendi la meccanica del cielo.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" href="#">
+</head>
+<body>
+  <!-- Three.js Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Main User Interface Layer -->
+  <div class="ui-layer">
+    <!-- Sidebar Controls and Explanations -->
+    <aside class="sidebar">
+      <header>
+        <h1>Sfera Armillare</h1>
+        <p>Esplora il modello meccanico del cielo. Il sistema simula il moto apparente della sfera celeste rispetto alla latitudine dell'osservatore.</p>
+      </header>
+
+      <!-- Section: Latitude Controller -->
+      <section class="control-group">
+        <h2>Orientamento Latitudine</h2>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>Inclinazione Asse (Latitudine)</span>
+            <span id="lat-val-label" class="slider-value">45°</span>
+          </div>
+          <input type="range" id="latitude-slider" min="-90" max="90" value="45" step="1">
+        </div>
+      </section>
+
+      <!-- Section: Date Controller -->
+      <section class="control-group">
+        <h2>Simulazione per Data</h2>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>Data Selezionata</span>
+            <span id="date-val-label" class="slider-value">26 Maggio 2026</span>
+          </div>
+          <input type="date" id="date-picker" value="2026-05-26">
+        </div>
+        <div class="slider-container" style="margin-top: 10px;">
+          <div class="slider-label">
+            <span>Giorno dell'Anno</span>
+            <span id="day-val-label" class="slider-value">Giorno 146</span>
+          </div>
+          <input type="range" id="day-slider" min="1" max="365" value="146" step="1">
+        </div>
+        <div id="zodiac-hud-sidebar" style="margin-top: 5px; padding: 10px; background: rgba(255, 159, 28, 0.1); border: 1px dashed rgba(255, 159, 28, 0.3); border-radius: 8px; text-align: center; font-size: 0.95rem; font-weight: 600; color: var(--zodiac-color);">
+          Sole nel Segno dei Gemelli ♊
+        </div>
+      </section>
+
+      <!-- Section: Simulation & Rotations -->
+      <section class="control-group">
+        <h2>Controlli di Rotazione</h2>
+        <div class="sim-controls">
+          <button id="btn-play-celestial" class="btn btn-primary">
+            <span id="btn-play-icon">⏸</span> <span id="btn-play-text">Pausa Sfera</span>
+          </button>
+          <button id="btn-play-earth" class="btn">
+            <span>🔄</span> Terra
+          </button>
+        </div>
+        <div class="slider-container" style="margin-top: 10px;">
+          <div class="slider-label">
+            <span>Velocità Rotazione</span>
+            <span id="speed-val-label" class="slider-value">1.0x</span>
+          </div>
+          <input type="range" id="speed-slider" min="0" max="4" value="1" step="0.1">
+        </div>
+      </section>
+
+      <!-- Section: Element Visibility Toggles -->
+      <section class="control-group">
+        <h2>Visibilità Elementi</h2>
+        
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--horizon-color)"></span>
+            <span>Orizzonte Celeste (Fisso)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-horizon" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--meridian-color)"></span>
+            <span>Meridiano Celeste (Fisso)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-meridian" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--equator-color)"></span>
+            <span>Equatore Celeste (Mobile)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-equator" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--tropics-color)"></span>
+            <span>Tropici (Mobile)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-tropics" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--polar-color)"></span>
+            <span>Circoli Polari (Mobile)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-polar" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--zodiac-color)"></span>
+            <span>Fascia Zodiacale (Mobile)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-zodiac" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--terrestrial-color)"></span>
+            <span>4 Meridiani Celesti (Mobile)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-meridians-outer" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: #ffea00"></span>
+            <span>Corpo del Sole (Mobile)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-sun">
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: var(--earth-color)"></span>
+            <span>Globo Terrestre Centrale</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-earth" checked>
+            <span class="slider-switch"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Section: Educational Information -->
+      <section class="info-section">
+        <h2>Guida ed Elementi</h2>
+        
+        <div class="info-card" onclick="toggleCard(this)">
+          <div class="info-card-header">
+            <span>Orizzonte Celeste</span>
+            <span class="badge" style="background: rgba(0, 245, 212, 0.15); color: var(--horizon-color)">Fisso</span>
+          </div>
+          <div class="info-card-desc">
+            Il piano orizzontale verde smeraldo rappresenta l'orizzonte locale dell'osservatore. Divide la sfera celeste in emisfero visibile (sopra) e invisibile (sotto). Rimane fisso rispetto all'osservatore.
+          </div>
+        </div>
+
+        <div class="info-card" onclick="toggleCard(this)">
+          <div class="info-card-header">
+            <span>Meridiano Celeste</span>
+            <span class="badge" style="background: rgba(255, 183, 3, 0.15); color: var(--meridian-color)">Fisso</span>
+          </div>
+          <div class="info-card-desc">
+            L'anello esterno dorato verticale è il Meridiano Locale dell'osservatore. Passa per i poli celesti e lo Zenit (il punto esattamente sopra la testa). Interseca l'orizzonte esattamente a Nord e Sud.
+          </div>
+        </div>
+
+        <div class="info-card" onclick="toggleCard(this)">
+          <div class="info-card-header">
+            <span>Equatore Celeste</span>
+            <span class="badge" style="background: rgba(0, 187, 249, 0.15); color: var(--equator-color)">Mobile</span>
+          </div>
+          <div class="info-card-desc">
+            L'anello azzurro è la proiezione nello spazio dell'Equatore terrestre. Ruota con la sfera celeste ed è perpendicolare all'asse di rotazione dei poli. Interseca l'orizzonte esattamente a Est e a Ovest.
+          </div>
+        </div>
+
+        <div class="info-card" onclick="toggleCard(this)">
+          <div class="info-card-header">
+            <span>Tropici</span>
+            <span class="badge" style="background: rgba(255, 0, 127, 0.15); color: var(--tropics-color)">Mobile</span>
+          </div>
+          <div class="info-card-desc">
+            I due anelli rosa indicano il Tropico del Cancro (+23.5°, a nord) e il Tropico del Capricorno (-23.5°, a sud). Rappresentano le latitudini celesti massime raggiunte dal Sole durante i solstizi estivo ed invernale.
+          </div>
+        </div>
+
+        <div class="info-card" onclick="toggleCard(this)">
+          <div class="info-card-header">
+            <span>Fascia Zodiacale</span>
+            <span class="badge" style="background: rgba(255, 159, 28, 0.15); color: var(--zodiac-color)">Mobile</span>
+          </div>
+          <div class="info-card-desc">
+            Una larga fascia circolare inclinata di 23.4° rispetto all'Equatore celeste. Si estende esattamente tra i due Tropici, rappresentando la via annuale del Sole (Eclittica). È divisa nei 12 segni dello Zodiaco con i loro simboli tradizionali.
+          </div>
+        </div>
+
+        <div class="info-card" onclick="toggleCard(this)">
+          <div class="info-card-header">
+            <span>Circoli Polari</span>
+            <span class="badge" style="background: rgba(144, 224, 239, 0.15); color: var(--polar-color)">Mobile</span>
+          </div>
+          <div class="info-card-desc">
+            Gli anelli celesti a ±66.5° indicano il Circolo Polare Artico e Antartico. Essi delimitano la calotta in cui, a seconda del solstizio, le stelle o il Sole sono costantemente visibili (circumpolari) o invisibili per almeno 24 ore.
+          </div>
+        </div>
+
+        <div class="info-card" onclick="toggleCard(this)">
+          <div class="info-card-header">
+            <span>4 Meridiani Celesti</span>
+            <span class="badge" style="background: rgba(155, 93, 229, 0.15); color: var(--terrestrial-color)">Mobile</span>
+          </div>
+          <div class="info-card-desc">
+            Quattro cerchi perpendicolari all'equatore celeste, sfasati di 45° l'uno dall'altro. Rappresentano la griglia dei meridiani celesti (o coluri) che ruotano assieme all'asse del cielo.
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p>Sviluppato con ♥ in Three.js</p>
+      </footer>
+    </aside>
+
+    <!-- Floating HUD Elements -->
+    <div class="hud-layer">
+      <div class="hud-panel">
+        <div class="hud-latitude-display">
+          <div class="hud-lat-title">Latitudine Attiva</div>
+          <div id="hud-lat-value" class="hud-lat-val">45.0° N</div>
+        </div>
+      </div>
+
+      <div class="instructions-card">
+        <h3>Navigazione 3D</h3>
+        <ul>
+          <li><strong>Ruota:</strong> Trascina con il tasto sinistro</li>
+          <li><strong>Pan:</strong> Trascina con il tasto destro / Shift</li>
+          <li><strong>Zoom:</strong> Rotella del mouse / Pizzico</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CDN scripts: Three.js and OrbitControls (non-modules to allow file:// access) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    // Collapsible info cards logic
+    function toggleCard(card) {
+      const wasActive = card.classList.contains('active');
+      document.querySelectorAll('.info-card').forEach(c => c.classList.remove('active'));
+      if (!wasActive) {
+        card.classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>

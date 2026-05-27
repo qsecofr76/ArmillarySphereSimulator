@@ -23,6 +23,8 @@ let latitude = 45; // Latitudine iniziale
 let speedMultiplier = 1.0;
 let celestialRotationActive = true;
 let earthRotationActive = false;
+let currentHour = 12.0; // Ora del giorno corrente
+let currentDate = new Date('2026-05-26'); // Data corrente
 
 const baseRotationSpeed = 0.005;
 
@@ -734,6 +736,7 @@ function getZodiacSign(date) {
 }
 
 function updateDateSimulation(date) {
+  currentDate = date; // Salva la data corrente a livello globale
   const day = getDayOfYear(date);
   
   // L'angolo lungo l'eclittica: equinozio di primavera (20 marzo, giorno ~79) a lambda = 0 (local -Z)
@@ -747,20 +750,21 @@ function updateDateSimulation(date) {
     sunMesh.position.z = 5.08 * Math.sin(angle);
   }
 
-  // Se la rotazione giornaliera della sfera celeste è disattivata (PAUSA),
-  // blocchiamo la sfera nella posizione corretta per la data scelta (orientamento zodiacale di Mezzogiorno locale).
-  // Calcolo matematico dell'angolo di rotazione Y per allineare il punto solare al meridiano Sud locale (YZ plane, z < 0).
-  if (!celestialRotationActive) {
-    const x_local = Math.cos(angle) * Math.cos(23.44 * Math.PI / 180);
-    const z_local = Math.sin(angle);
-    const rotationY = Math.atan2(-x_local, -z_local);
-    celestialSphereGroup.rotation.y = rotationY;
-  }
+  // Calcolo matematico dell'angolo di rotazione Y per allineare il punto solare al meridiano Sud locale (mezzogiorno locale).
+  const x_local = Math.cos(angle) * Math.cos(23.44 * Math.PI / 180);
+  const z_local = Math.sin(angle);
+  const noonAngle = Math.atan2(-x_local, -z_local);
+
+  // Calcolo dell'angolo orario dovuto all'ora del giorno (12:00 = 0 diff, 24 ore = 2*PI radianti)
+  const hourAngle = (currentHour - 12.0) * (2 * Math.PI / 24.0);
+
+  // Applica la rotazione alla Sfera Celeste (somma di mezzogiorno locale + scostamento orario diurno)
+  celestialSphereGroup.rotation.y = noonAngle + hourAngle;
 
   // Calcola il Segno Zodiacale corrente
   const zodiac = getZodiacSign(date);
 
-  // Aggiorna UI
+  // Aggiorna UI Data
   const dayName = date.getDate();
   const monthName = MONTHS_IT[date.getMonth()];
   const yearName = date.getFullYear();
@@ -768,6 +772,23 @@ function updateDateSimulation(date) {
   document.getElementById('date-val-label').innerText = `${dayName} ${monthName} ${yearName}`;
   document.getElementById('day-val-label').innerText = `Giorno ${day}`;
   document.getElementById('zodiac-hud-sidebar').innerHTML = `Sole nel Segno dei ${zodiac.name} ${zodiac.sym}`;
+
+  // Aggiorna UI Ora del Giorno
+  const hours = Math.floor(currentHour);
+  const minutes = Math.floor((currentHour - hours) * 60);
+  const hh = String(hours).padStart(2, '0');
+  const mm = String(minutes).padStart(2, '0');
+  
+  let labelDesc = "";
+  if (currentHour >= 5.0 && currentHour < 8.0) labelDesc = " (Alba)";
+  else if (currentHour >= 8.0 && currentHour < 12.0) labelDesc = " (Mattina)";
+  else if (currentHour === 12.0) labelDesc = " (Mezzogiorno)";
+  else if (currentHour > 12.0 && currentHour < 17.0) labelDesc = " (Pomeriggio)";
+  else if (currentHour >= 17.0 && currentHour < 20.0) labelDesc = " (Tramonto)";
+  else if (currentHour >= 20.0 && currentHour < 24.0) labelDesc = " (Sera)";
+  else labelDesc = " (Notte)";
+
+  document.getElementById('time-val-label').innerText = `${hh}:${mm}${labelDesc}`;
 }
 
 // --- GESTIONE EVENTI & CONTROLLI UI ---
@@ -810,6 +831,13 @@ function setupEventHandlers() {
   speedSlider.addEventListener('input', (e) => {
     speedMultiplier = parseFloat(e.target.value);
     document.getElementById('speed-val-label').innerText = `${speedMultiplier.toFixed(1)}x`;
+  });
+
+  // Slider Ora del Giorno
+  const timeSlider = document.getElementById('time-slider');
+  timeSlider.addEventListener('input', (e) => {
+    currentHour = parseFloat(e.target.value);
+    updateDateSimulation(currentDate);
   });
 
   // Pulsante Play/Pause Sfera Celeste
@@ -856,7 +884,24 @@ function setupEventHandlers() {
   bindToggle('toggle-meridian', fixedMeridianMesh);
   bindToggle('toggle-equator', equatorMesh);
   bindToggle('toggle-zodiac', zodiacBandMesh);
-  bindToggle('toggle-sun', sunMesh);
+  
+  // Sincronizzazione dei due toggle del Sole (visibilità generale + pannello data)
+  const toggleSun = document.getElementById('toggle-sun');
+  const toggleSunDate = document.getElementById('toggle-sun-date');
+
+  const updateSunVisibility = (visible) => {
+    sunMesh.visible = visible;
+    toggleSun.checked = visible;
+    toggleSunDate.checked = visible;
+  };
+
+  toggleSun.addEventListener('change', (e) => {
+    updateSunVisibility(e.target.checked);
+  });
+
+  toggleSunDate.addEventListener('change', (e) => {
+    updateSunVisibility(e.target.checked);
+  });
   
   // Tropici (include entrambi)
   const toggleTropics = document.getElementById('toggle-tropics');
@@ -903,15 +948,21 @@ function animate() {
 
   // 1. Rotazione Giornaliera della Sfera Celeste (Diurna)
   if (celestialRotationActive) {
-    celestialSphereGroup.rotation.y += baseRotationSpeed * deltaMultiplier;
+    // Incrementa l'ora del giorno in base alla velocità (24 ore = giro completo della sfera celeste di 2*PI radianti)
+    currentHour += (baseRotationSpeed * deltaMultiplier * 24.0) / (2 * Math.PI);
+    if (currentHour >= 24.0) currentHour -= 24.0;
+    
+    // Aggiorna lo slider dell'ora del giorno
+    document.getElementById('time-slider').value = currentHour;
+    
+    // Applica l'orientamento diurno corretto in base a data ed ora corrente
+    updateDateSimulation(currentDate);
   }
 
   // 2. Rotazione Propria del Globo Terrestre (Heliocentrica)
   if (earthRotationActive) {
     // La Terra ruota in direzione opposta rispetto alla rotazione apparente del cielo
     earthGroup.rotation.y -= baseRotationSpeed * deltaMultiplier * 1.5;
-  } else if (!celestialRotationActive) {
-    // Se tutto è fermo, nessuna rotazione
   }
 
   // Aggiorna controlli di orbita telecamera

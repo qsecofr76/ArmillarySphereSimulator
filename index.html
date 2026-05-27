@@ -53,6 +53,16 @@
         <div id="zodiac-hud-sidebar" style="margin-top: 5px; padding: 10px; background: rgba(255, 159, 28, 0.1); border: 1px dashed rgba(255, 159, 28, 0.3); border-radius: 8px; text-align: center; font-size: 0.95rem; font-weight: 600; color: var(--zodiac-color);">
           Sole nel Segno dei Gemelli ♊
         </div>
+        <div class="toggle-item" style="margin-top: 12px; background: rgba(255, 255, 255, 0.02); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.04);">
+          <div class="toggle-label-wrap">
+            <span class="color-dot" style="color: #ffea00"></span>
+            <span>Mostra Corpo del Sole</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-sun-date">
+            <span class="slider-switch"></span>
+          </label>
+        </div>
       </section>
 
       <!-- Section: Simulation & Rotations -->
@@ -65,6 +75,13 @@
           <button id="btn-play-earth" class="btn">
             <span>🔄</span> Terra
           </button>
+        </div>
+        <div class="slider-container" style="margin-top: 10px;">
+          <div class="slider-label">
+            <span>Ora del Giorno (Moto Diurno)</span>
+            <span id="time-val-label" class="slider-value">12:00 (Mezzogiorno)</span>
+          </div>
+          <input type="range" id="time-slider" min="0" max="23.95" value="12" step="0.05">
         </div>
         <div class="slider-container" style="margin-top: 10px;">
           <div class="slider-label">

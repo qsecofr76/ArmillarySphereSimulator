@@ -144,6 +144,12 @@ function init() {
   // 10. Collegamento UI
   setupEventHandlers();
 
+  // Di default su schermi mobili e tablet la sidebar parte collassata per non coprire il canvas 3D
+  if (window.innerWidth <= 900) {
+    document.querySelector('.sidebar').classList.add('collapsed');
+    document.getElementById('sidebar-toggle').setAttribute('aria-label', "Mostra Controlli");
+  }
+
   // 11. Loop di Animazione
   animate();
 }
@@ -923,6 +929,44 @@ function setupEventHandlers() {
   bindToggle('toggle-equinox', equinoxColureMesh);
   bindToggle('toggle-solstice', solsticeColureMesh);
 
+  // Pulsante per collassare la barra laterale (drawer) e overlay mobile
+  const btnToggleSidebar = document.getElementById('sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+
+  const toggleSidebar = (forceCollapse) => {
+    let isCollapsed;
+    if (typeof forceCollapse === 'boolean') {
+      isCollapsed = forceCollapse;
+      if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+      } else {
+        sidebar.classList.remove('collapsed');
+      }
+    } else {
+      isCollapsed = sidebar.classList.toggle('collapsed');
+    }
+    
+    btnToggleSidebar.setAttribute('aria-label', isCollapsed ? "Mostra Controlli" : "Nascondi Controlli");
+    
+    if (overlay) {
+      if (isCollapsed) {
+        overlay.classList.remove('active');
+      } else {
+        if (window.innerWidth <= 900) {
+          overlay.classList.add('active');
+        }
+      }
+    }
+  };
+
+  btnToggleSidebar.addEventListener('click', () => toggleSidebar());
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      toggleSidebar(true);
+    });
+  }
+
   // Globo Terrestre + Asse + Meridiani Terrestri
   const toggleEarth = document.getElementById('toggle-earth');
   toggleEarth.addEventListener('change', (e) => {
@@ -940,6 +984,11 @@ function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  
+  const overlay = document.getElementById('sidebar-overlay');
+  if (window.innerWidth > 900 && overlay) {
+    overlay.classList.remove('active');
+  }
 }
 
 // --- ANIMATION LOOP ---

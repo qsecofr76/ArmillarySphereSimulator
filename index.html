@@ -14,8 +14,15 @@
 
   <!-- Main User Interface Layer -->
   <div class="ui-layer">
+    <!-- Overlay per dispositivo mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
     <!-- Sidebar Controls and Explanations -->
     <aside class="sidebar">
+      <!-- Pulsante per collassare/mostrare la barra laterale -->
+      <button id="sidebar-toggle" class="sidebar-toggle-btn" aria-label="Nascondi Controlli">
+        <span id="toggle-icon">◀</span>
+      </button>
       <header>
         <h1>Sfera Armillare</h1>
         <p>Esplora il modello meccanico del cielo. Il sistema simula il moto apparente della sfera celeste rispetto alla latitudine dell'osservatore.</p>

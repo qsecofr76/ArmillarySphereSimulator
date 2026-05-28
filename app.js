@@ -739,9 +739,10 @@ function updateDateSimulation(date) {
   currentDate = date; // Salva la data corrente a livello globale
   const day = getDayOfYear(date);
   
-  // L'angolo lungo l'eclittica: equinozio di primavera (20 marzo, giorno ~79) a lambda = 0 (local -Z)
-  // Utilizziamo la formula: (Giorno - 79) / 365.24 * 2 * PI - PI/2
-  const angle = ((day - 79) / 365.24) * 2 * Math.PI - Math.PI / 2;
+  // L'angolo lungo l'eclittica: equinozio di primavera (20 marzo, giorno ~79) a lambda = 0 (local +Z, inizio Ariete)
+  // Per una corretta visione Boreale, il moto annuo del Sole è in senso antiorario (da Ovest a Est dello Zodiaco),
+  // quindi l'angolo decresce per spostarsi da +Z (Equinozio, Ariete) a +X (Solstizio d'Estate, Cancro).
+  const angle = -((day - 79) / 365.24) * 2 * Math.PI + Math.PI / 2;
 
   // Posiziona il Sole localmente sul cerchio dell'eclittica (figlio di zodiacBandMesh, R = 5.08)
   if (sunMesh) {
@@ -756,7 +757,8 @@ function updateDateSimulation(date) {
   const noonAngle = Math.atan2(-x_local, -z_local);
 
   // Calcolo dell'angolo orario dovuto all'ora del giorno (12:00 = 0 diff, 24 ore = 2*PI radianti)
-  const hourAngle = (currentHour - 12.0) * (2 * Math.PI / 24.0);
+  // Per la visione Boreale, il moto diurno apparente va da Est a Ovest (rotazione in senso orario, ovvero decrescente in Y).
+  const hourAngle = -(currentHour - 12.0) * (2 * Math.PI / 24.0);
 
   // Applica la rotazione alla Sfera Celeste (somma di mezzogiorno locale + scostamento orario diurno)
   celestialSphereGroup.rotation.y = noonAngle + hourAngle;
@@ -961,8 +963,8 @@ function animate() {
 
   // 2. Rotazione Propria del Globo Terrestre (Heliocentrica)
   if (earthRotationActive) {
-    // La Terra ruota in direzione opposta rispetto alla rotazione apparente del cielo
-    earthGroup.rotation.y -= baseRotationSpeed * deltaMultiplier * 1.5;
+    // Per una corretta visione Boreale, la Terra ruota verso Est (senso antiorario, Y crescente)
+    earthGroup.rotation.y += baseRotationSpeed * deltaMultiplier * 1.5;
   }
 
   // Aggiorna controlli di orbita telecamera

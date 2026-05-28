@@ -148,6 +148,10 @@ function init() {
   if (window.innerWidth <= 900) {
     document.querySelector('.sidebar').classList.add('collapsed');
     document.getElementById('sidebar-toggle').setAttribute('aria-label', "Mostra Controlli");
+    const floatingMenuBtn = document.getElementById('floating-menu-btn');
+    if (floatingMenuBtn) {
+      floatingMenuBtn.classList.add('visible');
+    }
   }
 
   // 11. Loop di Animazione
@@ -948,6 +952,16 @@ function setupEventHandlers() {
     }
     
     btnToggleSidebar.setAttribute('aria-label', isCollapsed ? "Mostra Controlli" : "Nascondi Controlli");
+    
+    // Mostra/nasconde il pulsante fluttuante Controlli in base allo stato della sidebar
+    const floatingMenuBtn = document.getElementById('floating-menu-btn');
+    if (floatingMenuBtn) {
+      if (isCollapsed) {
+        floatingMenuBtn.classList.add('visible');
+      } else {
+        floatingMenuBtn.classList.remove('visible');
+      }
+    }
     
     if (overlay) {
       if (isCollapsed) {

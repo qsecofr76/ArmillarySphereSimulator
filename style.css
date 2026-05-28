@@ -433,53 +433,53 @@ footer {
 
 /* Pulsante Menu Fluttuante (visibile a Sfera/Sidebar chiusa) */
 .floating-menu-btn {
-  position: absolute;
+  position: fixed;
   top: 24px;
   left: 24px;
-  z-index: 8; /* Sotto la barra laterale aperta, ma sopra il canvas 3D */
+  z-index: 100; /* Sopra a ogni elemento per garantire click e visibilità */
   pointer-events: auto;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 22px;
-  background: rgba(10, 10, 25, 0.75);
+  padding: 12px 24px;
+  background: rgba(10, 10, 25, 0.85); /* Sfondo scuro semitrasparente */
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--panel-border);
+  border: 1.5px solid rgba(0, 245, 212, 0.4); /* Splendido bordo ciano olografico */
   border-radius: 30px;
   color: var(--text-color);
   font-family: 'Outfit', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 245, 212, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 245, 212, 0.2);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   opacity: 0;
   transform: scale(0.9) translateY(-10px);
   pointer-events: none;
 }
 
-/* Mostra automaticamente il bottone se la sidebar è collassata */
-.sidebar.collapsed ~ .floating-menu-btn {
+/* Mostra il bottone tramite JS con classe .visible */
+.floating-menu-btn.visible {
   opacity: 1;
   transform: scale(1) translateY(0);
   pointer-events: auto;
 }
 
 .floating-menu-btn:hover {
-  background: rgba(20, 20, 45, 0.9);
-  border-color: var(--earth-color);
-  box-shadow: 0 10px 30px rgba(76, 201, 240, 0.25), 0 0 20px rgba(76, 201, 240, 0.15);
-  transform: translateY(-2px);
+  background: rgba(20, 20, 45, 0.95);
+  border-color: var(--horizon-color);
+  box-shadow: 0 10px 35px rgba(0, 245, 212, 0.4), 0 0 25px rgba(0, 245, 212, 0.25);
+  transform: scale(1.05) translateY(-2px);
 }
 
 .floating-menu-btn:active {
-  transform: translateY(0);
+  transform: scale(0.98) translateY(0);
 }
 
 .floating-menu-btn .menu-icon {
-  font-size: 1.1rem;
-  color: var(--earth-color);
+  font-size: 1.2rem;
+  color: var(--horizon-color);
 }
 
 /* Floating HUD elements for interactive look */

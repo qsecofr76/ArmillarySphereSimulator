@@ -967,6 +967,14 @@ function setupEventHandlers() {
     });
   }
 
+  // Pulsante fluttuante per decollassare la barra dei controlli
+  const floatingMenuBtn = document.getElementById('floating-menu-btn');
+  if (floatingMenuBtn) {
+    floatingMenuBtn.addEventListener('click', () => {
+      toggleSidebar(false); // Espande la barra laterale
+    });
+  }
+
   // Globo Terrestre + Asse + Meridiani Terrestri
   const toggleEarth = document.getElementById('toggle-earth');
   toggleEarth.addEventListener('change', (e) => {

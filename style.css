@@ -431,6 +431,57 @@ footer {
   pointer-events: auto;
 }
 
+/* Pulsante Menu Fluttuante (visibile a Sfera/Sidebar chiusa) */
+.floating-menu-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 8; /* Sotto la barra laterale aperta, ma sopra il canvas 3D */
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  background: rgba(10, 10, 25, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  border-radius: 30px;
+  color: var(--text-color);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 245, 212, 0.1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  transform: scale(0.9) translateY(-10px);
+  pointer-events: none;
+}
+
+/* Mostra automaticamente il bottone se la sidebar è collassata */
+.sidebar.collapsed ~ .floating-menu-btn {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+.floating-menu-btn:hover {
+  background: rgba(20, 20, 45, 0.9);
+  border-color: var(--earth-color);
+  box-shadow: 0 10px 30px rgba(76, 201, 240, 0.25), 0 0 20px rgba(76, 201, 240, 0.15);
+  transform: translateY(-2px);
+}
+
+.floating-menu-btn:active {
+  transform: translateY(0);
+}
+
+.floating-menu-btn .menu-icon {
+  font-size: 1.1rem;
+  color: var(--earth-color);
+}
+
 /* Floating HUD elements for interactive look */
 .hud-layer {
   grid-column: 2;
@@ -588,5 +639,12 @@ footer {
   
   .instructions-card {
     display: none; /* Nasconde istruzioni per risparmiare spazio */
+  }
+
+  .floating-menu-btn {
+    top: 16px;
+    left: 16px;
+    padding: 10px 18px;
+    font-size: 0.9rem;
   }
 }
